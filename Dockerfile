@@ -1,3 +1,3 @@
-FROM framac/frama-c:github-action-v2
+FROM framac/frama-c:dev-stripped.alpine
 COPY entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
