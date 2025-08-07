@@ -1,4 +1,8 @@
-#!/bin/bash -e
+#!/bin/bash
+
+set -o errexit
+set -o pipefail
+set -o nounset
 
 echo "Frama-C/Eva action entrypoint, displaying environment information"
 echo "PWD=$PWD"
@@ -17,7 +21,7 @@ if [ ! -f "$fc_dir/$fc_makefile" ]; then
     exit 1
 fi
 
-eval $(opam env)
+eval "$(opam env)"
 
 echo "Parsing files: running target ${target}.parse"
 
@@ -29,9 +33,9 @@ echo "Running Eva: running target ${target}.eva"
 make -C "$fc_dir" -f "$fc_makefile" "${target}.eva"
 
 # output Eva summary
-cd "$fc_dir"
+cd "$fc_dir" || exit
 summary=$(mktemp eva_summary.log.XXXXXX)
-sed -n -e '/====== ANALYSIS SUMMARY ======/,/\[metrics\] Eva coverage statistics/{/\[metrics\] Eva coverage statistics/!p}' "${target}.eva/eva.log" > $summary
+sed -n -e '/====== ANALYSIS SUMMARY ======/,/\[metrics\] Eva coverage statistics/{/\[metrics\] Eva coverage statistics/!p}' "${target}.eva/eva.log" > "$summary"
 
 alarm_count=$(wc -l "${target}.eva/alarms.csv" | cut -d' ' -f1)
 coverage=$(grep "Coverage estimation" "${target}.eva/metrics.log" | cut -d'=' -f2)
